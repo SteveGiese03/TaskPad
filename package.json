@@ -11,6 +11,20 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "electron": "^28.2.0"
+    "electron": "^28.2.0",
+    "electron-packager": "^17.1.2"
+  },
+  "build":{
+    "appId": "com.steve.taskpad",
+    "productName": "TaskPad",
+    "win":{
+      "icon": "src/img/icon.ico"
+    },
+    "mac":{
+      "icon": "src/img/icon.ico"
+    },
+    "linux":{
+      "icon": "src/img/icon.ico"
+    }
   }
 }
