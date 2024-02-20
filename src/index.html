@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TaskPad</title>
+        <link rel="icon" href="img/icon.ico">
+
+        <link rel="stylesheet" href="main.css">
+    </head>
+
+    <body class="mainBody" onload="refreshTables()">
+        <h1 id="day-el">#DAY#</h1>
+        <h2 id="date-el">##/##/##</h2>
+        <div class="tabs">
+            <button class="tabButSel" id="task-tab" onclick="switchTabs('task')">Today's Tasks</button>
+            <button class="tabBut" id="config-tab" onclick="switchTabs('config')">Configure Tasks</button>
+            <button class="tabBut" id="stats-tab" onclick="switchTabs('stats')">Scoresheet</button>
+        </div>
+
+
+        <!--Add apage-->
+        <div id="create" class="subFrame" hidden>
+            <h3 id="create-h">Create #New/Extra# Task</h3>
+            <p class="errorP" id="create-error" hidden>Feild can't be blank!</p>
+            <input type="text" id="create-entry">
+            <table>
+                <tr>
+                    <td class="tdCenter"><button onclick="addItem()">Create</button></td>
+                    <td class="tdCenter"><button onclick="switchTabs('default')">Cancel</button></td>
+                </tr>
+            </table>
+        </div>
+
+
+        <!--Edit apage-->
+        <div id="edit" class="subFrame" hidden>
+            <h3 id="edit-h">Edit #Daily/Extra# Task</h3>
+            <input type="text" id="edit-entry">
+            <table>
+                <tr>
+                    <td class="tdCenter"><button id="edit-confirm">Confrim</button></td>
+                    <td class="tdCenter"><button onclick="switchTabs('default')">Cancel</button></td>
+                </tr>
+            </table>
+        </div>
+
+
+        <!--Delete Page-->
+        <div id="delete" class="subFrame" hidden>
+            <h3>Delete Entry?</h3>
+            <p id="delete-entry"></p>
+            <table>
+                <tr>
+                    <td class="tdCenter"><button id="delete-confirm">Yes</button></td>
+                    <td class="tdCenter"><button onclick="switchTabs('default')">No</button></td>
+                </tr>
+            </table>
+        </div>
+
+        <!--Tasks Pages-->
+        <div id="task" class="subFrame">
+            <h3 class="remGap">Daily Tasks</h3>
+            <p id="no-task" hidden>No daily tasks yet, create on in the config menu!</p>
+            <table id="task-table"></table>
+
+            <h3>Extra Tasks</h3>
+            <p id="no-extra" hidden>No extra tasks today!</p>
+            <table id="extra-table"></table><br>
+            <button onclick="switchCreate()" class="createButton">+ Add Extra Task</button>
+        </div>
+
+        <!--Config Pages-->
+        <div id="config" class="subFrame" hidden>
+            <h3 class="remGap">Configure Daily Tasks</h3>
+            <p id="no-config">No tasks yet, create one now!</p>
+            <table id="config-table"></table><br>
+            <button onclick="switchCreate('create')" class="createButton">+ Create New Task</button>
+            <!--Buttons and stuff here-->
+        </div>
+
+        <!--Stats Page-->
+        <div id="stats" class="subFrame" hidden>
+            <h3 class="remGap">Score History</h3>
+            <p id="no-scores" hidden>No scores yet!</p>
+            <table id="scores-table"></table>
+        </div>
+
+        <p id="main-score">Current Score: ##/##</p>
+        <p>This Week's Grade: #</p>
+        <script src="index.js"></script>
+    </body>
+</html>
