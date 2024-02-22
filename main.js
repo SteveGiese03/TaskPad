@@ -1,57 +1,43 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const fs = require('fs')
 const path = require('path');
+const curDate = new Date();
 
 const jsonDATA = loadJSON();
 
 function loadJSON() {
-    dataPath = path.join(__dirname, 'src', 'data.json');
+    dataPath = path.join(__dirname, 'data.json');
     if(!fs.existsSync(dataPath)){
         console.log("Unable to find data.json! Creating a new one!")
         return createJSON();
     }
     loadedJson = JSON.parse(fs.readFileSync(dataPath).toString());
-    if(loadedJson.lastOpened !== constructCurDate()){
-        let completed = 0;
-        for(i=0; i<loadedJson.task.length; i++){
-            completed = loadedJson.task[i].checked ? completed + 1 : completed;
-            loadedJson.task[i].checked = false;
-        }
-        for(let extra in loadedJson.extra) completed = extra.checked ? completed + 1 : completed;
-
-        loadedJson.lastOpened = constructCurDate();
-        loadedJson.scores[loadedJson.scores.length] = {
-            date: constructCurDate(),
-            score: completed,
-            outOf: loadedJson.task.length + loadedJson.extra.length,
-            extra: loadedJson.extra.length
-        }
-        loadedJson.extra = [];
+    if(loadedJson.lastOpened !== dateToString(curDate)){
+        console.log("Not same date!");
+        saveScore(loadedJson);
+        loadedJson.lastOpened = dateToString(curDate);
     }
-
-    //Check current day, if different, reset checks, clear extra, save score
-
     return loadedJson;
 }
 function saveJSON(){
-    dataPath = path.join(__dirname, 'src', 'data.json');
+    dataPath = path.join(__dirname, 'data.json');
     fs.writeFileSync(dataPath, JSON.stringify(jsonDATA));
 }
 function createJSON(){
     return {
-        lastOpened: constructCurDate(),
+        lastOpened: dateToString(curDate),
         task: [],
         extra: [],
         scores: []
-    }
+    };
 }
-
 
 function createWindow(){
     const win = new BrowserWindow({
         width: 600,
         height: 1000,
         icon: path.join(__dirname, 'src', 'img', 'icon.ico'),
+        autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
@@ -88,7 +74,24 @@ async function saveData(section, toSave){
     jsonDATA[section] = toSave;
 }
 
-function constructCurDate(){
-    let date = new Date();
+function dateToString(date){
     return (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();
+}
+
+function saveScore(loadedJson){
+    let totalTasks = loadedJson.task.length + loadedJson.extra.length;
+    if(totalTasks === 0) return;
+    let completed = 0;
+    for(i=0; i<loadedJson.task.length; i++){
+        completed = loadedJson.task[i].checked ? completed + 1 : completed;
+        loadedJson.task[i].checked = false;
+    }
+    for(let extra in loadedJson.extra) completed = extra.checked ? completed + 1 : completed;
+    loadedJson.scores[loadedJson.scores.length] = {
+        date: loadedJson.lastOpened,
+        score: completed,
+        outOf: totalTasks,
+        extra: loadedJson.extra.length
+    }
+    loadedJson.extra = [];
 }

@@ -10,7 +10,7 @@
         <link rel="stylesheet" href="main.css">
     </head>
 
-    <body class="mainBody" onload="refreshTables()">
+    <body class="mainBody" onload="refreshTables(true)">
         <h1 id="day-el">#DAY#</h1>
         <h2 id="date-el">##/##/##</h2>
         <div class="tabs">
@@ -23,7 +23,7 @@
         <!--Add apage-->
         <div id="create" class="subFrame" hidden>
             <h3 id="create-h">Create #New/Extra# Task</h3>
-            <p class="errorP" id="create-error" hidden>Feild can't be blank!</p>
+            <p class="errorP" id="create-error" hidden>Field can't be blank!</p>
             <input type="text" id="create-entry">
             <table>
                 <tr>
@@ -37,6 +37,7 @@
         <!--Edit apage-->
         <div id="edit" class="subFrame" hidden>
             <h3 id="edit-h">Edit #Daily/Extra# Task</h3>
+            <p class="errorP" id="edit-error" hidden>Field can't be blank!</p>
             <input type="text" id="edit-entry">
             <table>
                 <tr>
@@ -88,7 +89,6 @@
         </div>
 
         <p id="main-score">Current Score: ##/##</p>
-        <p>This Week's Grade: #</p>
         <script src="index.js"></script>
     </body>
 </html>

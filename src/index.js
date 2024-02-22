@@ -15,7 +15,6 @@ const editConfirm = document.getElementById('edit-confirm');
 
 
 function switchTabs(section){
-    document.getElementById("create-error").hidden = true;
     if(section === "default") section = lastDiv;
     else lastDiv = section; 
 
@@ -30,6 +29,7 @@ function switchTabs(section){
 }
 
 function switchCreate(){
+    document.getElementById("create-error").hidden = true;
     document.getElementById('create-h').textContent = 
         lastDiv === 'task' ? "Create Extra Task" : "Create New Task";
     for(i=0; i<tabDivs.length; i++)
@@ -37,6 +37,7 @@ function switchCreate(){
 }
 
 function switchEdit(entry, index){
+    document.getElementById("edit-error").hidden = true;
     for(i=0; i<tabDivs.length; i++)
         tabDivs[i].hidden = i != 4; //Index of edit div in array
     editEntry.value = entry;
@@ -57,8 +58,8 @@ function switchDelete(entry, index){
 }
 
 //Reload the data onto the the different tables
-function refreshTables(){
-    fillContainer();
+function refreshTables(firstLoad = false){
+    if(firstLoad) fillContainer();
     fillTasks('task');
     fillTasks('extra');
     fillConfig();
@@ -189,6 +190,10 @@ async function addItem(){
     switchTabs('default');
 }
 async function updateEntry(index){
+    if(editEntry.value === ""){
+        document.getElementById("edit-error").hidden = false;
+        return;
+    }
     section = lastDiv === 'task' ? 'extra' : 'task';
     toUpdate = await data.receive(section);
     toUpdate[index].entry = editEntry.value;
@@ -218,36 +223,23 @@ async function fillContainer(){
     const dayName = ["Sunday", "Monday", "Tuesday", "Wenesday", "Thursday", "Friday", "Saturday"];
     const date = new Date();
     dayLabel.textContent = dayName[date.getDay()];
-    dateLabel.textContent = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear();  
-
+    dateLabel.textContent = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear(); 
     const scores = await data.receive('scores');
-    if(scores.length === 0){
-        document.getElementById('main-score').textContent = "No Previous Scores";
-        return;
-    }
-    lastScore = scores[scores.length - 1];
-    document.getElementById('main-score').textContent = "Week Score: " + findWeekStats(scores);
+    document.getElementById("main-score").textContent = findWeekStats(scores, date);
 }
 
 
-function findWeekStats(scores){
+function findWeekStats(scores, date){
     let weekStart = new Date();
+    weekStart.setDate(date.getDate() - date.getDay() + 1);
     let totalCompleted = 0;
     let totalOutOf = 0;
 
-    weekStart.setDate(weekStart.getDate() - weekStart.getDay() + 1);
-
     for(i=scores.length - 1; i >=0; i--){
-        if(weekStart > Date(scores[i].date)) return totalCompleted + "/" + totalOutOf;
+        if(weekStart > Date(scores[i].date)) break;
         totalCompleted += scores[i].score;
         totalOutOf += scores[i].outOf;
     }
-    return totalCompleted + "/" + totalOutOf;
+    if(totalOutOf === 0) return "No previous scores this week";
+    return "This weeks score: " + totalCompleted + "/" + totalOutOf;
 }
-// fetch('data.json').then(function(response){
-//     return response.json();
-// }).then(function(obj){
-//     return obj;
-// }).catch(function (error) {
-//     console.error('File was not able to be loaded: ', error)
-// });

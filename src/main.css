@@ -41,6 +41,7 @@ button:active{
 }
 p{
     font-size: 14pt;
+    user-select: none;
 }
 input{
     margin: 1em;
