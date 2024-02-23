@@ -6,21 +6,17 @@ const curDate = new Date();
 const jsonDATA = loadJSON();
 
 function loadJSON() {
-    dataPath = path.join(__dirname, 'data.json');
+    dataPath = path.join(app.getPath("userData"), 'data.json');
     if(!fs.existsSync(dataPath)){
-        console.log("Unable to find data.json! Creating a new one!")
+        console.log("File not found, creating...");
         return createJSON();
     }
-    loadedJson = JSON.parse(fs.readFileSync(dataPath).toString());
-    if(loadedJson.lastOpened !== dateToString(curDate)){
-        console.log("Not same date!");
-        saveScore(loadedJson);
-        loadedJson.lastOpened = dateToString(curDate);
-    }
+    const loadedJson = JSON.parse(fs.readFileSync(dataPath).toString());
+
     return loadedJson;
 }
 function saveJSON(){
-    dataPath = path.join(__dirname, 'data.json');
+    dataPath = path.join(app.getPath("userData"), 'data.json');
     fs.writeFileSync(dataPath, JSON.stringify(jsonDATA));
 }
 function createJSON(){

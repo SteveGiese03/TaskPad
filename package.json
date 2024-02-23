@@ -26,6 +26,9 @@
     },
     "linux":{
       "icon": "src/img/icon.ico"
-    }
+    },
+    "files" : [
+      "data.json"
+    ]
   }
 }
