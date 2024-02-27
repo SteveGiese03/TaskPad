@@ -18,7 +18,6 @@ function switchTabs(section){
     if(section === "default") section = lastDiv;
     else lastDiv = section; 
 
-    addEntry.value = "";
     //editEntry.value = "";
 
     for(i=0; i<tabDivs.length; i++){
@@ -29,28 +28,37 @@ function switchTabs(section){
 }
 
 function switchCreate(){
+    addEntry.value = "";
     document.getElementById("create-error").hidden = true;
     document.getElementById('create-h').textContent = 
         lastDiv === 'task' ? "Create Extra Task" : "Create New Task";
+    document.getElementById('create-select-days').hidden = lastDiv === 'task';
     for(i=0; i<tabDivs.length; i++)
         tabDivs[i].hidden = i != 3; //the Index of create div in array
 }
 
-function switchEdit(entry, index){
+function switchEdit(task, index){
+    const isExtra = lastDiv === 'task';
     document.getElementById("edit-error").hidden = true;
+    document.getElementById('edit-select-days').hidden = isExtra;
+    document.getElementById('edit-h').textContent =isExtra ? "Edit Extra Task" : "Edit Daily Task";
+
     for(i=0; i<tabDivs.length; i++)
         tabDivs[i].hidden = i != 4; //Index of edit div in array
-    editEntry.value = entry;
+    editEntry.value = task.entry;
     
+    for(i=0; !isExtra && i<7; i++)
+        document.getElementById('edit'+i).checked = task.dates[i];
+
     editConfirm.addEventListener('click', function(){
         updateEntry(index);
     });
 }
 
-function switchDelete(entry, index){
+function switchDelete(task, index){
     for(i=0; i<tabDivs.length; i++)
         tabDivs[i].hidden = i != 5;
-    document.getElementById('delete-entry').textContent = entry;
+    document.getElementById('delete-entry').textContent = task.entry;
     document.getElementById('delete-confirm').addEventListener('click', function(){
         deleteItem(index);
     });
@@ -67,16 +75,17 @@ function refreshTables(firstLoad = false){
 }
 
 
-
+//Fill the divs with task data
 async function fillTasks(section){
+    const day = new Date().getDay();
     const taskData = await data.receive(section);  //Load the json data
     const tableArea = document.getElementById(section + '-table'); //Grab and reset table
+    let taskTody = false;
     tableArea.textContent = "";
-    document.getElementById('no-' + section).hidden = taskData.length > 0;
-
     for(let i = 0; i < taskData.length; i++){
+        if(section === 'task' && !taskData[i].dates[day]) continue;
+        taskTody = true;
         let checkLabelCell = document.createElement('td');
-
         let checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
         checkbox.id = "" + section[0] + i;
@@ -84,8 +93,6 @@ async function fillTasks(section){
         checkbox.addEventListener('click', function(){
             updateCheck(section, i, checkbox.checked);
         });
-
-
         let label = document.createElement('label');
         label.textContent = taskData[i].entry;
         label.setAttribute('for', section[0] + i);
@@ -97,11 +104,16 @@ async function fillTasks(section){
             tableArea.appendChild(tableRow);
             continue;
         }
-        tableRow.appendChild(createButtonCell('Edit', taskData[i].entry, i));
-        tableRow.appendChild(createButtonCell('Delete', taskData[i].entry, i));
+        tableRow.appendChild(createButtonCell('Edit', taskData[i], i));
+        tableRow.appendChild(createButtonCell('Delete', taskData[i], i));
 
         tableArea.appendChild(tableRow);
     }
+    const noDataP = document.getElementById('no-' + section);
+
+    noDataP.hidden = taskData.length > 0 && taskTody;
+    if(section === 'task') document.getElementById('no-' + section).textContent = taskData.length === 0 ?
+        "No daily tasks yet, create on in the config menu!" : "No tasks scheduled for today!";
 }
 
 async function fillConfig(){
@@ -120,8 +132,8 @@ async function fillConfig(){
         let tableRow = document.createElement('tr');
         tableRow.appendChild(entryCell);
 
-        tableRow.appendChild(createButtonCell('Edit', taskData[i].entry, i));
-        tableRow.appendChild(createButtonCell("Delete", taskData[i].entry, i));
+        tableRow.appendChild(createButtonCell('Edit', taskData[i], i));
+        tableRow.appendChild(createButtonCell("Delete", taskData[i], i));
         tableArea.appendChild(tableRow);
     }
 }
@@ -155,18 +167,18 @@ async function fillStats(){
 }
 
 //Breaking down repetitive instructions into re-usable functions
-function createButtonCell(buttonType, entry, index){
+function createButtonCell(buttonType, task, index){
     let button = document.createElement('button');
     let buttonCell = document.createElement('td');
     buttonCell.className = "tdButton";
     button.textContent = buttonType;
     if(buttonType === 'Edit'){
         button.className = "editBut"
-        button.addEventListener('click', function(){ switchEdit(entry, index); });
+        button.addEventListener('click', function(){ switchEdit(task, index); });
     }
     else{
         button.className = "delBut";
-        button.addEventListener('click', function(){ switchDelete(entry, index); });
+        button.addEventListener('click', function(){ switchDelete(task, index); });
     }
     buttonCell.appendChild(button);
     return buttonCell;
@@ -174,21 +186,34 @@ function createButtonCell(buttonType, entry, index){
 
 //Data manipulation areas, handles the add, edit, and delete menu. 
 async function addItem(){
+    const error = document.getElementById("create-error");
     if(addEntry.value === ""){
-        document.getElementById("create-error").hidden = false;
+        error.textContent = "Field can't be blank!";
+        error.hidden = false;
         return;
     }
     saveTo = lastDiv === 'task' ? 'extra' : 'task';
-    itemToSave = {
-        entry: addEntry.value,
-        checked: false
+    if(saveTo === 'extra'){
+
     }
+
+    itemToSave = saveTo === 'task' ? {entry: addEntry.value,checked: false, dates: createDates()} : 
+        {entry: addEntry.value,checked: false}
+
     toUpdate = await data.receive(saveTo);
     toUpdate[toUpdate.length] = itemToSave;
     data.save(saveTo, toUpdate);
     refreshTables();
     switchTabs('default');
 }
+function createDates(){
+    let dates = Array();
+    for(i=0; i<7; i++){
+        dates.push(document.getElementById('day'+i).checked);
+    }
+    return dates;
+}
+
 async function updateEntry(index){
     if(editEntry.value === ""){
         document.getElementById("edit-error").hidden = false;
@@ -197,8 +222,10 @@ async function updateEntry(index){
     section = lastDiv === 'task' ? 'extra' : 'task';
     toUpdate = await data.receive(section);
     toUpdate[index].entry = editEntry.value;
-    data.save(section, toUpdate);
+    if(section === 'task') for(i=0; i<7; i++)
+        toUpdate[index].dates[i] = document.getElementById('edit'+i).checked;
 
+    data.save(section, toUpdate);
     refreshTables();
     switchTabs('default');
 }

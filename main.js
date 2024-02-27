@@ -12,7 +12,13 @@ function loadJSON() {
         return createJSON();
     }
     const loadedJson = JSON.parse(fs.readFileSync(dataPath).toString());
-
+    if(loadedJson.task.length > 0 && !loadedJson.task[0].hasOwnProperty('dates')){
+        console.log("File seems to be outdated, updating...");
+        for(i=0; i<loadedJson.task.length; i++)
+            loadedJson.task[i]['dates'] = [true, true, true, true, true, true, true];
+    }
+    if(dateToString(curDate) !== loadedJson.lastOpened) saveScore(loadedJson);
+    loadedJson.lastOpened = dateToString(curDate);
     return loadedJson;
 }
 function saveJSON(){
@@ -33,13 +39,12 @@ function createWindow(){
         width: 600,
         height: 1000,
         icon: path.join(__dirname, 'src', 'img', 'icon.ico'),
-        autoHideMenuBar: true,
+        //autoHideMenuBar: true,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js')
         }
     });
 
-    //ipcMain.handle('load-data')
     win.loadFile('src/index.html')
 }
 
@@ -75,10 +80,13 @@ function dateToString(date){
 }
 
 function saveScore(loadedJson){
-    let totalTasks = loadedJson.task.length + loadedJson.extra.length;
+    const curDay = curDate.getDay();
+    let totalTasks = loadedJson.extra.length;
     if(totalTasks === 0) return;
     let completed = 0;
     for(i=0; i<loadedJson.task.length; i++){
+        if(!loadedJson.task[i].dates[curDay]) continue;
+        totalTasks++;
         completed = loadedJson.task[i].checked ? completed + 1 : completed;
         loadedJson.task[i].checked = false;
     }
