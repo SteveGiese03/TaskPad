@@ -6,10 +6,12 @@ to track how well I do during the week. However, I couldn't find an app that rea
 up using a notepad widget on my desktop and manually check and uncheck everytask, marking down score, ect. After learning 
 about electron, I decided to turn my notepad into a real app that handles all the tedious work for me, and thus, Taskpad was born</p>
 <h3>Current Versions</h3>
+<h4>Taskpad 1.1</h4>
+<a href="https://github.com/SteveGiese03/TaskPad/releases/download/latest/TaskPad.1.1-win32-x64.zip">Windows</a>
 <h4>Taskpad 1.0</h4>
-<a href="https://github.com/SteveGiese03/TaskPad/releases/download/inital_release/TaskPad-win32-x64.zip"><p>Windows</p></a>
+<a href="https://github.com/SteveGiese03/TaskPad/releases/download/inital_release/TaskPad-win32-x64.zip">Windows</a>
 <h2>Completed</h2>
-<p>-- Added the ability to mark tasks to only apply for specified days of the week, for example, if you create an entry, you can select days,
+<p>1.1: Added the ability to mark tasks to only apply for specified days of the week, for example, if you create an entry, you can select days,
 Monday, Tuesday, ect. The entry will only show up on the days selected.</p>
 <h2>To Do:</h2>
 <p> -- Save grade of the previous week, and display it below the current weeks score.</p>
