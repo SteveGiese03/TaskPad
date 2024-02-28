@@ -80,9 +80,10 @@ function dateToString(date){
 }
 
 function saveScore(loadedJson){
-    const curDay = curDate.getDay();
+    //const lastOpenedD = new Date(loadedJson.lastOpened);
+    const curDay = new Date(loadedJson.lastOpened).getDay();
     let totalTasks = loadedJson.extra.length;
-    if(totalTasks === 0) return;
+    if(totalTasks + loadedJson.task.length === 0) return;
     let completed = 0;
     for(i=0; i<loadedJson.task.length; i++){
         if(!loadedJson.task[i].dates[curDay]) continue;

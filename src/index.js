@@ -253,8 +253,8 @@ async function fillContainer(){
     dateLabel.textContent = (date.getMonth() + 1) + "/" + date.getDate() + "/" + date.getFullYear(); 
     const scores = await data.receive('scores');
     document.getElementById("main-score").textContent = findWeekStats(scores, date);
+    document.getElementById("last-week-grade").textContent = findMonthAcc(scores, date);
 }
-
 
 function findWeekStats(scores, date){
     let weekStart = new Date();
@@ -269,4 +269,18 @@ function findWeekStats(scores, date){
     }
     if(totalOutOf === 0) return "No previous scores this week";
     return "This weeks score: " + totalCompleted + "/" + totalOutOf;
+}
+
+function findMonthAcc(scores, date){
+    let totalCompleted = 0;
+    let totalOutOf = 0;
+    console.log(scores.length)
+    for(i=scores.length - 1; i>=0; i--){
+        scoreDate = new Date(scores[i].date);
+        if(date.getMonth() != scoreDate.getMonth()) break;
+        totalCompleted += scores[i].score;
+        totalOutOf += scores[i].outOf;
+    }
+    if(totalOutOf === 0) return "No previous month Scores";
+    return "Month Accuracy: " + ((totalCompleted/totalOutOf) * 100).toFixed(2) + '%';
 }
